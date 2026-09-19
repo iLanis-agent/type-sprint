@@ -87,7 +87,7 @@ function renderWords(){
 }
 function stats(){
   var el2=G.start?(Date.now()-G.start)/60000:0;
-  var wpm=el2>0?Math.round((G.ok/5)/el2):0;
+  var wpm=el2>0?Math.min(500,Math.round((G.ok/5)/el2)):0;
   var acc=(G.ok+G.bad)>0?Math.round(G.ok/(G.ok+G.bad)*100):100;
   el('hw').textContent=wpm; el('ha').textContent=acc+'%'; el('ht').textContent=G.left;
   return {wpm:wpm,acc:acc};
@@ -130,7 +130,7 @@ function finish(){
   try{localStorage.setItem('typesprint-hist',JSON.stringify(G.hist));}catch(_){}
   var isBest=s.wpm>=best()&&s.wpm>0;
   var bars=G.hist.map(function(h,i){
-    var ht=Math.max(8,Math.round(h.wpm/100*70));
+    var ht=Math.min(70,Math.max(8,Math.round(h.wpm/100*70)));
     return '<div class="'+(i===G.hist.length-1?'cur':'')+'" style="height:'+ht+'px"><span>'+h.wpm+'</span></div>';
   }).join('');
   el('stage').innerHTML='<div class="card"><h2>'+s.wpm+' WPM</h2>'+
