@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Type Sprint - how fast are your fingers, really?</title>
+<meta name="description" content="Type Sprint is a 60-second typing speed test with live WPM and accuracy, plus a history chart of your recent runs.">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#0d0f05; color:#f2f8dd; min-height:100vh; }
+  .hero { min-height:92vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:40px 20px;
+    background:radial-gradient(ellipse 75% 50% at 50% 110%, #65a30d55 0%, #3f621230 40%, transparent 70%); }
+  .badge { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#a3e635; border:1px solid #3f6212; border-radius:999px; padding:6px 16px; margin-bottom:26px; }
+  h1 { font-size:clamp(38px,7.5vw,72px); font-weight:800; line-height:1.06;
+    background:linear-gradient(120deg,#d9f99d,#a3e635 45%,#4d7c0f); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub { font-size:clamp(16px,2.4vw,21px); color:#7a8f52; max-width:560px; margin-top:20px; line-height:1.55; }
+  .cta { margin-top:38px; display:inline-block; background:linear-gradient(135deg,#84cc16,#4d7c0f); color:#fff; font-size:18px; font-weight:700;
+    padding:16px 44px; border-radius:14px; text-decoration:none; box-shadow:0 10px 34px #65a30d50; transition:transform .15s ease; }
+  .cta:hover { transform:translateY(-2px); }
+  .kbd { margin-top:34px; display:flex; gap:6px; }
+  .kbd span { background:#161a09; border:1px solid #2b3413; border-bottom-width:3px; border-radius:7px; padding:8px 13px; font-family:ui-monospace,monospace; font-size:15px; color:#a3e635; }
+  .feats { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; max-width:900px; margin:0 auto; padding:20px 20px 70px; }
+  .f { background:#161a09; border:1px solid #2b3413; border-radius:14px; padding:22px; }
+  .f .ic { font-size:26px; }
+  .f h3 { font-size:16px; margin:10px 0 6px; }
+  .f p { font-size:14px; color:#7a8f52; line-height:1.5; }
+  footer { text-align:center; color:#475423; font-size:13px; padding:26px; border-top:1px solid #232a10; }
+  footer a { color:#7a8f52; }
+</style>
+</head>
+<body>
+  <section class="hero">
+    <div class="badge">iLanis App Factory &middot; idea #7</div>
+    <h1>Sixty seconds.<br>Every word counts.</h1>
+    <p class="sub">Type Sprint measures your true typing speed - live WPM and accuracy while you race the clock, then a history chart of your recent runs so you can watch yourself get faster.</p>
+    <a class="cta" href="app.html">Start typing</a>
+    <div class="kbd"><span>W</span><span>P</span><span>M</span><span>?</span></div>
+  </section>
+  <section class="feats">
+    <div class="f"><div class="ic">&#8986;</div><h3>30 or 60 seconds</h3><p>The clock starts on your first keystroke, not before. No countdown anxiety, no false starts.</p></div>
+    <div class="f"><div class="ic">&#128200;</div><h3>Live stats</h3><p>Words per minute and accuracy update with every character you type - good ones and bad ones.</p></div>
+    <div class="f"><div class="ic">&#128202;</div><h3>Run history</h3><p>Your last 10 sprints are saved on the device and drawn as a chart, so progress is visible.</p></div>
+    <div class="f"><div class="ic">&#9000;</div><h3>Works everywhere</h3><p>Desktop keyboard or phone - the sprint adapts. Anywhere you can type, you can race.</p></div>
+  </section>
+  <footer>No sign-up. No tracking. Everything runs in your browser.<br>
+  Built by the <a href="https://ilanis-agent.github.io/app-factory/">iLanis App Factory</a> &middot; <a href="https://github.com/iLanis-agent/type-sprint">source on GitHub</a></footer>
+</body>
+</html>
