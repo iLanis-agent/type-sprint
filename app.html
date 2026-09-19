@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Type Sprint - how fast are your fingers, really?</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#0d0f05; color:#f2f8dd; min-height:100vh; }
+  .wrap { max-width:720px; margin:0 auto; padding:22px 16px 60px; }
+  h1 { font-size:22px; font-weight:800; text-align:center; }
+  h1 .t { color:#a3e635; }
+  .tag { text-align:center; color:#7a8f52; font-size:13px; margin:4px 0 18px; }
+  .modes { display:flex; gap:8px; justify-content:center; margin-bottom:16px; }
+  .modes button { background:#161a09; border:1px solid #2b3413; color:#c9d8a3; border-radius:9px; padding:7px 18px; font-size:13px; cursor:pointer; }
+  .modes button.on { background:#3f6212; border-color:#a3e635; color:#ecfccb; }
+  .hud { display:flex; justify-content:space-around; background:#161a09; border:1px solid #2b3413; border-radius:12px; padding:12px; margin-bottom:16px; font-variant-numeric:tabular-nums; }
+  .hud .c { text-align:center; }
+  .hud .k { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#7a8f52; }
+  .hud .v { font-size:24px; font-weight:800; }
+  #words { background:#111405; border:1px solid #232a10; border-radius:14px; padding:26px 24px; font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace; font-size:22px; line-height:2.1; letter-spacing:.5px; cursor:text; min-height:170px; user-select:none; }
+  #words .w { padding:2px 1px; border-radius:4px; }
+  #words .cur { background:#232a10; }
+  #words .ok { color:#a3e635; }
+  #words .bad { color:#f87171; text-decoration:underline; text-decoration-color:#f8717188; }
+  #words .todo { color:#5c6b3d; }
+  #hidden { position:absolute; opacity:0; pointer-events:none; }
+  .card { background:#161a09; border:1px solid #2b3413; border-radius:14px; padding:26px 22px; margin-top:14px; text-align:center; }
+  .card h2 { font-size:30px; }
+  .card .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin:18px 0; }
+  .card .cell { background:#0d0f05; border:1px solid #2b3413; border-radius:10px; padding:12px; }
+  .card .cell .k { font-size:11px; text-transform:uppercase; color:#7a8f52; letter-spacing:1px; }
+  .card .cell .v { font-size:22px; font-weight:800; margin-top:2px; }
+  .bigbtn { background:linear-gradient(135deg,#84cc16,#4d7c0f); border:none; color:#fff; font-size:16px; font-weight:700; padding:13px 38px; border-radius:12px; cursor:pointer; box-shadow:0 8px 26px #65a30d40; }
+  #hist { display:flex; gap:4px; align-items:flex-end; justify-content:center; height:70px; margin-top:16px; }
+  #hist div { width:26px; background:#3f6212; border-radius:4px 4px 0 0; position:relative; }
+  #hist div.cur { background:#a3e635; }
+  #hist span { position:absolute; bottom:-18px; left:0; right:0; font-size:10px; color:#7a8f52; }
+  footer { text-align:center; color:#475423; font-size:12px; margin-top:26px; }
+  footer a { color:#7a8f52; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span class="t">&#9000;</span> Type Sprint</h1>
+  <p class="tag">the clock starts on your first keystroke - no warm-up, no mercy</p>
+  <div class="modes"><button data-s="30">30s</button><button data-s="60" class="on">60s</button></div>
+  <div id="stage"></div>
+  <input id="hidden" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+  <footer><a href="index.html">&#8592; About</a> &nbsp;|&nbsp; Type Sprint &middot; idea #7 from the iLanis App Factory</footer>
+</div>
+<script>
+var WORDS=("the of and to in is you that it he was for on are as with his they at be this have from or one had by word but not what all were we when your can said there use an each which she do how their if will up other about out many then them these so some her would make like him into time has look two more write go see number no way could people my than first water been call who oil its now find long down day did get come made may part over new sound take only little work know place year live me back give most very after thing our just name good sentence man think say great where help through much before line right too mean old any same tell boy follow came want show also around form three small set put end does another well large must big even such because turn here why ask went men read need land different home us move try kind hand picture again change off play spell air away animal house point page letter mother answer found study still learn should world high").split(" ");
+var G={dur:60,words:[],wi:0,ci:0,typed:[],start:0,left:0,timer:null,ok:0,bad:0,done:false,hist:[]};
+try{G.hist=JSON.parse(localStorage.getItem('typesprint-hist')||'[]');}catch(_){}
+function el(id){return document.getElementById(id);}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function best(){ var b=0; G.hist.forEach(function(h){if(h.wpm>b)b=h.wpm;}); return b; }
+function newTest(){
+  clearInterval(G.timer);
+  G.words=shuffle(WORDS.slice()).slice(0,90);
+  G.wi=0;G.ci=0;G.typed=[];G.ok=0;G.bad=0;G.start=0;G.left=G.dur;G.done=false;
+  el('stage').innerHTML=
+   '<div class="hud"><div class="c"><div class="k">wpm</div><div class="v" id="hw">0</div></div>'+
+   '<div class="c"><div class="k">accuracy</div><div class="v" id="ha">100%</div></div>'+
+   '<div class="c"><div class="k">time</div><div class="v" id="ht">'+G.dur+'</div></div></div>'+
+   '<div id="words"></div>';
+  renderWords();
+  var w=el('words');
+  w.onclick=function(){el('hidden').focus();};
+  el('hidden').value=''; el('hidden').focus();
+}
+function renderWords(){
+  var html='', i, j;
+  for(i=Math.max(0,G.wi-8);i<Math.min(G.words.length,G.wi+42);i++){
+    var w=G.words[i], cls=i===G.wi?'cur':(i<G.wi?(G.typed[i]?'ok':'bad'):'todo');
+    html+='<span class="w '+cls+'">';
+    for(j=0;j<w.length;j++){
+      var ch=w[j];
+      if(i===G.wi&&j===G.ci) html+='<span style="border-left:2px solid #a3e635">'+ch+'</span>';
+      else html+=ch;
+    }
+    if(i===G.wi&&G.ci===w.length) html+='<span style="border-left:2px solid #a3e635">&nbsp;</span>';
+    html+='</span> ';
+  }
+  el('words').innerHTML=html;
+}
+function stats(){
+  var el2=G.start?(Date.now()-G.start)/60000:0;
+  var wpm=el2>0?Math.round((G.ok/5)/el2):0;
+  var acc=(G.ok+G.bad)>0?Math.round(G.ok/(G.ok+G.bad)*100):100;
+  el('hw').textContent=wpm; el('ha').textContent=acc+'%'; el('ht').textContent=G.left;
+  return {wpm:wpm,acc:acc};
+}
+el('hidden').addEventListener('input',function(e){
+  if(G.done)return;
+  var v=el('hidden').value; el('hidden').value='';
+  if(!v)return;
+  var ch=v[v.length-1];
+  if(!G.start){G.start=Date.now();G.timer=setInterval(tick,250);}
+  var w=G.words[G.wi];
+  if(ch===' '){
+    if(G.ci===0)return;
+    var good=(G.ci===w.length);
+    G.typed[G.wi]=good;
+    if(good)G.ok+=w.length+1; else G.bad+=1;
+    G.wi++;G.ci=0;
+    if(G.wi>=G.words.length-5){G.words=G.words.concat(shuffle(WORDS.slice()));}
+  } else {
+    if(G.ci<w.length){
+      if(ch===w[G.ci]){G.ok++;}else{G.bad++;}
+      G.ci++;
+    } else { G.bad++; }
+  }
+  renderWords(); stats();
+});
+el('hidden').addEventListener('keydown',function(e){
+  if(e.key==='Backspace'&&G.ci>0){G.ci--; if(G.words[G.wi]){G.ok=Math.max(0,G.ok-1);} renderWords();}
+});
+function tick(){
+  G.left=G.dur-Math.floor((Date.now()-G.start)/1000);
+  if(G.left<=0){finish();return;}
+  stats();
+}
+function finish(){
+  clearInterval(G.timer); G.done=true;
+  var s=stats();
+  var entry={wpm:s.wpm,acc:s.acc,t:Date.now(),dur:G.dur};
+  G.hist.push(entry); if(G.hist.length>10)G.hist=G.hist.slice(-10);
+  try{localStorage.setItem('typesprint-hist',JSON.stringify(G.hist));}catch(_){}
+  var isBest=s.wpm>=best()&&s.wpm>0;
+  var bars=G.hist.map(function(h,i){
+    var ht=Math.max(8,Math.round(h.wpm/100*70));
+    return '<div class="'+(i===G.hist.length-1?'cur':'')+'" style="height:'+ht+'px"><span>'+h.wpm+'</span></div>';
+  }).join('');
+  el('stage').innerHTML='<div class="card"><h2>'+s.wpm+' WPM</h2>'+
+   '<p style="color:#7a8f52">'+(isBest?'new personal best':'')+'</p>'+
+   '<div class="grid"><div class="cell"><div class="k">accuracy</div><div class="v">'+s.acc+'%</div></div>'+
+   '<div class="cell"><div class="k">correct chars</div><div class="v">'+G.ok+'</div></div>'+
+   '<div class="cell"><div class="k">errors</div><div class="v">'+G.bad+'</div></div>'+
+   '<div class="cell"><div class="k">best wpm</div><div class="v">'+best()+'</div></div></div>'+
+   (G.hist.length>1?'<div class="k" style="font-size:11px;color:#7a8f52;text-transform:uppercase;letter-spacing:1px">recent runs</div><div id="hist">'+bars+'</div>':'')+
+   '<br><button class="bigbtn" onclick="newTest()">Go again</button></div>';
+}
+document.querySelectorAll('.modes button').forEach(function(b){
+  b.onclick=function(){ document.querySelectorAll('.modes button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on'); G.dur=parseInt(b.dataset.s,10); newTest(); };
+});
+newTest();
+</script>
+</body>
+</html>
